@@ -1,52 +1,39 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 
-# Setting up the webdriver
+# Set up the Selenium driver (make sure you have the appropriate driver installed)
 driver = webdriver.Chrome()
 
-# Navigating to the Flipkart homepage
-driver.get("https://www.flipkart.com")
-time.sleep(3)
+# Open Google website
+driver.get("https://www.google.com")
 
-# Handling login popup if it appears
-try:
-    close_button = driver.find_element("xpath", "//button[@class='_2KpZ6l _2doB4z']")
-    close_button.click()
-    time.sleep(2)
-except:
-    pass
+# Find and interact with the search input field
+search_input = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.NAME, "q"))
+)
+search_input.send_keys("how to use ChatGPT video")
+search_input.submit()
 
-# Finding the search bar and entering text
-search_bar = driver.find_element("xpath", "//input[@class='_3704LK']")
-search_bar.send_keys("iPhone 14 Pro")
+# Find and interact with the YouTube video link
+youtube_link = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CSS_SELECTOR, "div.g:nth-child(1) a[href^='https://www.youtube.com']"))
+)
+youtube_link.click()
 
-# Submitting the search query
-search_bar.send_keys(Keys.RETURN)
-
-# Waiting for the search results page to load
+# Wait for the video to load
 time.sleep(5)
 
-# Verifying that the search results page has loaded
-assert "iPhone 14 Pro" in driver.title
+# Skip the YouTube ad
+skip_ad_button = WebDriverWait(driver, 10).until(
+    EC.element_to_be_clickable((By.CLASS_NAME, "ytp-ad-skip-button"))
+)
+skip_ad_button.click()
 
-# Selecting the iPhone 14 Pro from the search results
-iphone_link = driver.find_element("xpath", "//a[@class='_1fQZEK']")
-iphone_link.click()
+# Play the video for 10 seconds
+time.sleep(10)
 
-# Waiting for the iPhone details page to load
-time.sleep(5)
-
-# Adding the iPhone to the cart
-add_to_cart_button = driver.find_element("xpath", "//button[@class='_2KpZ6l _2U9uOA _3v1-ww']")
-add_to_cart_button.click()
-
-# Waiting for the cart to update
-time.sleep(5)
-
-# Verifying that the iPhone has been added to the cart
-cart_count = driver.find_element("xpath", "//span[@class='_10Ermr']")
-assert cart_count.text == "1"
-
-# Closing the webdriver
-driver.close()
+# Close the browser
+driver.quit()
